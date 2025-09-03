@@ -1,6 +1,5 @@
 using System.Text;
 using API_BASE.API.Filters;
-using API_BASE.Application.Mapping;
 using API_BASE.Application.Settings;
 using API_BASE.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -45,7 +44,6 @@ builder.Services.AddAuthentication(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 builder.Services.AddControllers(options =>

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.15" />
@@ -22,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\API_BASE.Application\API_BASE.Application.csproj" />
     <ProjectReference Include="..\API_BASE.Domain\API_BASE.Domain.csproj" />
+    <ProjectReference Include="..\API_BASE.Shared\API_BASE.Shared.csproj" />
   </ItemGroup>
 
 </Project>
