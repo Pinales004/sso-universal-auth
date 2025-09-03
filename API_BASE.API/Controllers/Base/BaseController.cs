@@ -2,6 +2,7 @@
 using API_BASE.Application.Interfaces;
 using API_BASE.Domain.Base;
 using API_BASE.Shared.Responses;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,69 +10,68 @@ namespace API_BASE.API.Controllers.Base
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BaseController<TEntity> : ControllerBase where TEntity : AuditableEntity
+    public class BaseController<TEntity, TDto> : ControllerBase
+         where TEntity : class
+         where TDto : class
     {
-        private readonly IRepository<TEntity> _repository;
+        protected readonly IRepository<TEntity> _repository;
+        protected readonly IMapper _mapper;
 
-        public BaseController(IRepository<TEntity> repository)
+        public BaseController(IRepository<TEntity> repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<TEntity>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<IEnumerable<TDto>>>> GetAll()
         {
-            var result = await _repository.GetAllAsync();
-            return Ok(result);
+            var entities = await _repository.GetAllAsync();
+            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
+            return Ok(ApiResponse<IEnumerable<TDto>>.Ok(dtos));
         }
 
-        [HttpGet("GetById:{id}")]
-        public async Task<ActionResult<TEntity>> GetById(Guid id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ApiResponse<TDto>>> GetById(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
-            if (entity == null) return NotFound();
-            return Ok(entity);
+            if (entity == null)
+                return NotFound(ApiResponse<TDto>.Fail("No encontrado"));
+            var dto = _mapper.Map<TDto>(entity);
+            return Ok(ApiResponse<TDto>.Ok(dto));
         }
-
-        [HttpGet("GetPaginated")]
-        public async Task<ActionResult<ApiResponse<PaginatedResponse<TEntity>>>> GetAll([FromQuery] PaginationRequest paging)
-        {
-            var query = _repository.GetQueryable();
-            var total = await query.CountAsync();
-
-            var data = await query
-                .Skip((paging.Page - 1) * paging.Limit)
-                .Take(paging.Limit)
-                .ToListAsync();
-
-            var response = PaginatedResponse<TEntity>.Create(data, total, paging.Page, paging.Limit);
-            return Ok(ApiResponse<PaginatedResponse<TEntity>>.Ok(response));
-        }
-
 
         [HttpPost]
-        public async Task<ActionResult<TEntity>> Create([FromBody] TEntity entity)
+        public async Task<ActionResult<ApiResponse<TDto>>> Create(TDto dto)
         {
-            var created = await _repository.AddAsync(entity);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            var entity = _mapper.Map<TEntity>(dto);
+            await _repository.AddAsync(entity);
+            await _repository.SaveChangesAsync();
+            var result = _mapper.Map<TDto>(entity);
+            return CreatedAtAction(nameof(GetById), new { id = ((dynamic)entity).Id }, ApiResponse<TDto>.Ok(result));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] TEntity entity)
+        public async Task<ActionResult<ApiResponse<TDto>>> Update(Guid id, TDto dto)
         {
-            if (id != entity.Id) return BadRequest();
-            await _repository.UpdateAsync(entity);
-            return NoContent();
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null)
+                return NotFound(ApiResponse<TDto>.Fail("No encontrado"));
+            _mapper.Map(dto, entity);
+            _repository.Update(entity);
+            await _repository.SaveChangesAsync();
+            return Ok(ApiResponse<TDto>.Ok(_mapper.Map<TDto>(entity)));
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<ActionResult<ApiResponse<bool>>> Delete(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
-            if (entity == null) return NotFound();
-
-            await _repository.DeleteAsync(entity);
-            return NoContent();
+            if (entity == null)
+                return NotFound(ApiResponse<bool>.Fail("No encontrado"));
+            _repository.Remove(entity);
+            await _repository.SaveChangesAsync();
+            return Ok(ApiResponse<bool>.Ok(true));
         }
     }
 }
