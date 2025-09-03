@@ -1,12 +1,14 @@
-Ôªøusing System.Text;
+using System.Text;
 using API_BASE.API.Filters;
-using API_BASE.Application.Mapping;     // ‚¨ÖÔ∏è Importa tu config central de mappings
+using API_BASE.Application.Mapping;     // ?? Importa tu config central de mappings
 using API_BASE.Application.Mapping.Usuario;
 using API_BASE.Application.Settings;
 using API_BASE.Infrastructure.Extensions;
+using API_BASE.Infrastructure.Persistence;
 using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 
@@ -18,7 +20,12 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.Configure<SecurityPoliciesSettings>(builder.Configuration.GetSection("SecurityPolicies"));
 
 
-// Registra todos los perfiles autom√°ticamente
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Registra todos los perfiles autom·ticamente
 builder.Services.AddAutoMapper(typeof(UsuarioProfile).Assembly);
 
 // 3. Controllers y filtro de modelo
@@ -27,29 +34,10 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ValidateModelFilter>();
 });
 
-// 4. Autenticaci√≥n JWT
+// 4. AutenticaciÛn JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(secretKey),
-        ClockSkew = TimeSpan.Zero
-    };
-});
 
 // 5. Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -66,7 +54,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 7. Inyecci√≥n de infraestructura (repos, contextos, servicios t√©cnicos)
+// 7. InyecciÛn de infraestructura (repos, contextos, servicios tÈcnicos)
 builder.Services.AddInfrastructure();
 
 // 8. Build

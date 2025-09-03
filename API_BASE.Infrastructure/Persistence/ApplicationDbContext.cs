@@ -14,17 +14,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API_BASE.Infrastructure.Persistence
 {
-    public class ApplicationDbContext: DbContext
+    public class ApplicationDbContext : DbContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
-                                   IHttpContextAccessor httpContextAccessor)
-           : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor)
+            : base(options)
         {
             _httpContextAccessor = httpContextAccessor;
         }
 
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    :    base(options)
+        {
+            // NO uses _httpContextAccessor aquí.
+        }
         //Espacio para definir Tablas de la BD
 
         // Seguridad
@@ -87,31 +91,35 @@ namespace API_BASE.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
             base.OnModelCreating(modelBuilder);
 
-            // Filtro global para borrado logico
+            // Filtro global de borrado lógico solo para entidades concretas hijas de AuditableEntity
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
+                var clrType = entityType.ClrType;
+                if (clrType.BaseType == typeof(AuditableEntity) && !clrType.IsAbstract)
                 {
                     var method = typeof(ApplicationDbContext)
                         .GetMethod(nameof(SetSoftDeleteFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-                        .MakeGenericMethod(entityType.ClrType);
+                        .MakeGenericMethod(clrType);
 
                     method.Invoke(null, new object[] { modelBuilder });
+
+                    modelBuilder.Entity(clrType)
+                                .Property("Borrado")
+                                .HasDefaultValue(false);
                 }
             }
-            modelBuilder.Entity<AuditableEntity>()
-                        .Property(e => e.Borrado)
-                        .HasDefaultValue(false);
-
         }
 
         private static void SetSoftDeleteFilter<T>(ModelBuilder builder) where T : AuditableEntity
         {
             builder.Entity<T>().HasQueryFilter(e => !e.Borrado);
         }
-
 
     }
 }
