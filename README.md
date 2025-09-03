@@ -37,3 +37,21 @@ un sistema Single Sign-On adaptable, escalable y desacoplado, siguiendo Clean Ar
 - Auditoría de acciones y cambios
 - Seeds de datos, migraciones automáticas
 - Servicios desacoplados y reutilizables (JWT, Email, Hash, Auditoría, Notificación, Plantillas)
+
+- El modelo cubre:
+
+Gestión de usuarios y organizaciones (multi-organismo, multi-rol, vigencias, estados, flags de seguridad, herencia y overrides).
+
+RBAC avanzado (roles, permisos, árbol funcional/nodos, herencia, precedencia DENY > ALLOW, excepciones, scopes por nodo y organismo).
+
+Gestión de sesiones y tokens (revocación, refresh tokens solo hash, auditoría detallada).
+
+MFA (TOTP, recovery codes).
+
+Gestión de notificaciones y solicitudes (invites, cambio de roles, solicitudes de acceso, flujos configurables).
+
+Versionado de políticas (invalidate cachés vía claim en JWT).
+
+Auditoría centralizada (bitácora de eventos críticos, contexto funcional y organizacional).
+
+Soporte para flujos avanzados: Password reset, verificación de email, intentos de login, historial de contraseñas.
