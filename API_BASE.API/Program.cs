@@ -1,21 +1,32 @@
-using System.Text;
+﻿using System.Text;
 using API_BASE.API.Filters;
+using API_BASE.Application.Mapping;     // ⬅️ Importa tu config central de mappings
+using API_BASE.Application.Mapping.Usuario;
 using API_BASE.Application.Settings;
 using API_BASE.Infrastructure.Extensions;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 
 var builder = WebApplication.CreateBuilder(args);
-    builder.Services.Configure<JwtSettings>(
+
+// 1. Configura JwtSettings
+builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings"));
 
-// Add services to the container.
 
-builder.Services.AddControllers();
+// Registra todos los perfiles automáticamente
+builder.Services.AddAutoMapper(typeof(UsuarioProfile).Assembly);
 
-//Authentication
+// 3. Controllers y filtro de modelo
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidateModelFilter>();
+});
 
+// 4. Autenticación JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
@@ -39,20 +50,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// 5. Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<ValidateModelFilter>();
-});
-
-
-
+// 6. CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -63,13 +65,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+// 7. Inyección de infraestructura (repos, contextos, servicios técnicos)
 builder.Services.AddInfrastructure();
 
-
+// 8. Build
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 9. Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -78,11 +80,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
-
-app.UseAuthentication();
 app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
