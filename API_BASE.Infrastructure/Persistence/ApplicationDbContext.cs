@@ -1,8 +1,15 @@
 ﻿
 using API_BASE.Domain.Base;
+using API_BASE.Domain.Entities.Aplicacion;
+using API_BASE.Domain.Entities.Mantenimiento;
+using API_BASE.Domain.Entities.Mantenimiento.Aplicacion;
+using API_BASE.Domain.Entities.Mantenimiento.UsuarioMan;
+using API_BASE.Domain.Entities.Notificaciones;
+using API_BASE.Domain.Entities.Organismo;
+using API_BASE.Domain.Entities.Seguridad;
+using API_BASE.Domain.Entities.Usuario;
+using API_BASE.Domain.Entities.Usuario.Solicitud;
 using Microsoft.AspNetCore.Http;
-
-
 using Microsoft.EntityFrameworkCore;
 
 namespace API_BASE.Infrastructure.Persistence
@@ -20,7 +27,39 @@ namespace API_BASE.Infrastructure.Persistence
 
         //Espacio para definir Tablas de la BD
 
+        // Seguridad
+        public DbSet<Permiso> Permisos { get; set; }
+        public DbSet<Rol> Roles { get; set; }
+        public DbSet<RolPermiso> RolPermisos { get; set; }
+        public DbSet<UsuarioRol> UsuarioRoles { get; set; }
+        public DbSet<UsuarioPermiso> UsuarioPermisos { get; set; }
+        public DbSet<Nodo> Nodos { get; set; }
+        public DbSet<Sesion> Sesiones { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Auditoria> Auditorias { get; set; }
+        public DbSet<ConfigPoliticas> ConfigPoliticas { get; set; }
 
+        // Usuarios
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<PasswordHistory> PasswordHistories { get; set; }
+        public DbSet<LoginAttempt> LoginAttempts { get; set; }
+        public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<MfaTotp> MfaTotps { get; set; }
+        public DbSet<MfaRecoveryCode> MfaRecoveryCodes { get; set; }
+        public DbSet<SolicitudUsuario> SolicitudesUsuario { get; set; }
+
+        // Notificaciones
+        public DbSet<Notificacion> Notificaciones { get; set; }
+        public DbSet<NotificacionUsuario> NotificacionesUsuario { get; set; }
+
+        // Organización
+        public DbSet<Organismo> Organismos { get; set; }
+        public DbSet<UsuarioOrganizacion> UsuarioOrganizaciones { get; set; }
+
+        // Aplicaciones
+        public DbSet<Aplicacion> Aplicaciones { get; set; }
+        public DbSet<AplicacionPermiso> AplicacionesPermisos { get; set; }
 
         //Auditoria de tablas automatica
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
