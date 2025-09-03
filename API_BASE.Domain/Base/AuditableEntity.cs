@@ -11,5 +11,6 @@ namespace API_BASE.Domain.Base
 
         public bool Borrado { get; set; } = false;
 
+        public bool Activo { get; set; } = true;
     }
 }

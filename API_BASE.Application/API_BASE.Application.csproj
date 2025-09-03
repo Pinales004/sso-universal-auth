@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\API_BASE.Domain\API_BASE.Domain.csproj" />
     <ProjectReference Include="..\API_BASE.Shared\API_BASE.Shared.csproj" />
   </ItemGroup>
 
