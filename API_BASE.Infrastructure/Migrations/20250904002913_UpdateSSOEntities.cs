@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API_BASE.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class UpdateSSOEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,6 +25,9 @@ namespace API_BASE.Infrastructure.Migrations
 
             migrationBuilder.EnsureSchema(
                 name: "organizacion");
+
+            migrationBuilder.EnsureSchema(
+                name: "Usuarios");
 
             migrationBuilder.CreateTable(
                 name: "Aplicaciones",
@@ -79,9 +82,9 @@ namespace API_BASE.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Tipo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Codigo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Tipo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Codigo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Nombre = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Orden = table.Column<int>(type: "int", nullable: true),
                     Activo = table.Column<bool>(type: "bit", nullable: false),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -128,14 +131,14 @@ namespace API_BASE.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Organismos",
-                schema: "organizacion",
+                schema: "seguridad",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nombre = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Nombre = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Tipo = table.Column<int>(type: "int", nullable: false),
                     ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Codigo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Codigo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UsuarioCreacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -149,7 +152,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Organismos_Organismos_ParentId",
                         column: x => x.ParentId,
-                        principalSchema: "organizacion",
+                        principalSchema: "seguridad",
                         principalTable: "Organismos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -161,9 +164,9 @@ namespace API_BASE.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Codigo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Nombre = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Codigo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UsuarioCreacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -184,8 +187,8 @@ namespace API_BASE.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     EsGlobal = table.Column<bool>(type: "bit", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Activo = table.Column<bool>(type: "bit", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UsuarioCreacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -199,18 +202,19 @@ namespace API_BASE.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Usuarios",
-                schema: "usuarios",
+                schema: "Usuarios",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Telefono = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PasswordSalt = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Telefono = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordSalt = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PasswordUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MustChangePassword = table.Column<bool>(type: "bit", nullable: false),
                     EsAdminGlobal = table.Column<bool>(type: "bit", nullable: false),
+                    MfaEnabled = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     Estado = table.Column<int>(type: "int", nullable: false),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UsuarioCreacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -268,8 +272,8 @@ namespace API_BASE.Infrastructure.Migrations
                     PermisoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AplicacionId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     NodoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Hereda = table.Column<bool>(type: "bit", nullable: false),
-                    Denegado = table.Column<bool>(type: "bit", nullable: false),
+                    Hereda = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    Efecto = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UsuarioCreacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -292,7 +296,8 @@ namespace API_BASE.Infrastructure.Migrations
                         column: x => x.NodoId,
                         principalSchema: "seguridad",
                         principalTable: "Nodos",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_RolPermisos_Permisos_PermisoId",
                         column: x => x.PermisoId,
@@ -336,9 +341,15 @@ namespace API_BASE.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Auditorias", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Auditorias_Organismos_OrganismoId",
+                        column: x => x.OrganismoId,
+                        principalSchema: "seguridad",
+                        principalTable: "Organismos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Auditorias_Usuarios_ActorId",
                         column: x => x.ActorId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
@@ -369,7 +380,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_EmailVerifications_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -399,7 +410,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_LoginAttempts_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -427,7 +438,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_MfaRecoveryCodes_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -456,7 +467,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_MfaTotps_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -494,7 +505,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_NotificacionesUsuario_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -522,7 +533,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_PasswordHistories_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -555,7 +566,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_PasswordResetRequests_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -586,7 +597,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Sesiones_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -621,7 +632,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_SolicitudesUsuario_Usuarios_SolicitanteId",
                         column: x => x.SolicitanteId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id");
                 });
@@ -650,14 +661,14 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_UsuarioOrganizaciones_Organismos_OrganismoId",
                         column: x => x.OrganismoId,
-                        principalSchema: "organizacion",
+                        principalSchema: "seguridad",
                         principalTable: "Organismos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UsuarioOrganizaciones_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -674,6 +685,9 @@ namespace API_BASE.Infrastructure.Migrations
                     Comentario = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Desde = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Hasta = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NodoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Efecto = table.Column<int>(type: "int", nullable: false),
+                    ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UsuarioCreacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -685,6 +699,13 @@ namespace API_BASE.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_UsuarioPermisos", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_UsuarioPermisos_Nodos_NodoId",
+                        column: x => x.NodoId,
+                        principalSchema: "seguridad",
+                        principalTable: "Nodos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_UsuarioPermisos_Permisos_PermisoId",
                         column: x => x.PermisoId,
                         principalSchema: "seguridad",
@@ -692,9 +713,15 @@ namespace API_BASE.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_UsuarioPermisos_UsuarioPermisos_ParentId",
+                        column: x => x.ParentId,
+                        principalSchema: "seguridad",
+                        principalTable: "UsuarioPermisos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_UsuarioPermisos_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -708,9 +735,12 @@ namespace API_BASE.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RolId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OrganismoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    OrganismoIdExt = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    NodoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IncluirDescendientes = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     Desde = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Hasta = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    OrganismoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UsuarioCreacion = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FechaModificacion = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -722,9 +752,22 @@ namespace API_BASE.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_UsuarioRoles", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_UsuarioRoles_Nodos_NodoId",
+                        column: x => x.NodoId,
+                        principalSchema: "seguridad",
+                        principalTable: "Nodos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
                         name: "FK_UsuarioRoles_Organismos_OrganismoId",
                         column: x => x.OrganismoId,
-                        principalSchema: "organizacion",
+                        principalSchema: "seguridad",
+                        principalTable: "Organismos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UsuarioRoles_Organismos_OrganismoIdExt",
+                        column: x => x.OrganismoIdExt,
+                        principalSchema: "seguridad",
                         principalTable: "Organismos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
@@ -738,7 +781,7 @@ namespace API_BASE.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_UsuarioRoles_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
-                        principalSchema: "usuarios",
+                        principalSchema: "Usuarios",
                         principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -800,6 +843,12 @@ namespace API_BASE.Infrastructure.Migrations
                 column: "ActorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Auditorias_OrganismoId",
+                schema: "seguridad",
+                table: "Auditorias",
+                column: "OrganismoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ConfigPoliticas_Version",
                 schema: "seguridad",
                 table: "ConfigPoliticas",
@@ -850,7 +899,7 @@ namespace API_BASE.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Organismos_ParentId",
-                schema: "organizacion",
+                schema: "seguridad",
                 table: "Organismos",
                 column: "ParentId");
 
@@ -865,13 +914,6 @@ namespace API_BASE.Infrastructure.Migrations
                 schema: "usuarios",
                 table: "PasswordResetRequests",
                 column: "UsuarioId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Permisos_Codigo",
-                schema: "seguridad",
-                table: "Permisos",
-                column: "Codigo",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_SesionId",
@@ -905,12 +947,10 @@ namespace API_BASE.Infrastructure.Migrations
                 column: "PermisoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RolPermisos_RolId_PermisoId_AplicacionId",
+                name: "IX_RolPermisos_RolId",
                 schema: "seguridad",
                 table: "RolPermisos",
-                columns: new[] { "RolId", "PermisoId", "AplicacionId" },
-                unique: true,
-                filter: "[AplicacionId] IS NOT NULL");
+                column: "RolId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sesiones_UsuarioId",
@@ -937,6 +977,18 @@ namespace API_BASE.Infrastructure.Migrations
                 column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UsuarioPermisos_NodoId",
+                schema: "seguridad",
+                table: "UsuarioPermisos",
+                column: "NodoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsuarioPermisos_ParentId",
+                schema: "seguridad",
+                table: "UsuarioPermisos",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UsuarioPermisos_PermisoId",
                 schema: "seguridad",
                 table: "UsuarioPermisos",
@@ -949,10 +1001,22 @@ namespace API_BASE.Infrastructure.Migrations
                 column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UsuarioRoles_NodoId",
+                schema: "seguridad",
+                table: "UsuarioRoles",
+                column: "NodoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UsuarioRoles_OrganismoId",
                 schema: "seguridad",
                 table: "UsuarioRoles",
                 column: "OrganismoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsuarioRoles_OrganismoIdExt",
+                schema: "seguridad",
+                table: "UsuarioRoles",
+                column: "OrganismoIdExt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UsuarioRoles_RolId",
@@ -961,17 +1025,10 @@ namespace API_BASE.Infrastructure.Migrations
                 column: "RolId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuarioRoles_UsuarioId",
+                name: "IX_UsuarioRoles_UsuarioId_RolId_OrganismoIdExt_NodoId",
                 schema: "seguridad",
                 table: "UsuarioRoles",
-                column: "UsuarioId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Usuarios_Email",
-                schema: "usuarios",
-                table: "Usuarios",
-                column: "Email",
-                unique: true);
+                columns: new[] { "UsuarioId", "RolId", "OrganismoIdExt", "NodoId" });
         }
 
         /// <inheritdoc />
@@ -1054,16 +1111,16 @@ namespace API_BASE.Infrastructure.Migrations
                 schema: "aplicaciones");
 
             migrationBuilder.DropTable(
-                name: "Nodos",
-                schema: "seguridad");
-
-            migrationBuilder.DropTable(
                 name: "Permisos",
                 schema: "seguridad");
 
             migrationBuilder.DropTable(
+                name: "Nodos",
+                schema: "seguridad");
+
+            migrationBuilder.DropTable(
                 name: "Organismos",
-                schema: "organizacion");
+                schema: "seguridad");
 
             migrationBuilder.DropTable(
                 name: "Roles",
@@ -1071,7 +1128,7 @@ namespace API_BASE.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Usuarios",
-                schema: "usuarios");
+                schema: "Usuarios");
         }
     }
 }

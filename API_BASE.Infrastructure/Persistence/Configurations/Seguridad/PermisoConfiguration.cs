@@ -15,10 +15,17 @@ namespace API_BASE.Infrastructure.Persistence.Configurations.Seguridad
         {
             builder.ToTable("Permisos", "seguridad");
             builder.HasKey(p => p.Id);
-            builder.HasIndex(p => p.Codigo).IsUnique();
-            builder.Property(p => p.Codigo).IsRequired().HasMaxLength(100);
-            builder.Property(p => p.Nombre).IsRequired().HasMaxLength(200);
-            builder.Property(p => p.Descripcion).HasMaxLength(500);
+
+            builder.Property(p => p.Codigo).IsRequired().HasMaxLength(50);
+            builder.Property(p => p.Nombre).IsRequired().HasMaxLength(100);
+
+            builder.HasMany(p => p.UsuarioPermisos)
+                   .WithOne(up => up.Permiso)
+                   .HasForeignKey(up => up.PermisoId);
+
+            builder.HasMany(p => p.RolPermisos)
+                   .WithOne(rp => rp.Permiso)
+                   .HasForeignKey(rp => rp.PermisoId);
         }
     }
 }

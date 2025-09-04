@@ -10,10 +10,11 @@ namespace API_BASE.Domain.Entities.Mantenimiento
 {
     public class Permiso : AuditableEntity
     {
-        public string Codigo { get; set; }
-        public string Nombre { get; set; }
+        public string Codigo { get; set; } = string.Empty; // Ej: "READ", "CREATE"
+        public string Nombre { get; set; } = string.Empty;
         public string? Descripcion { get; set; }
-        public ICollection<RolPermiso> Roles { get; set; } = new List<RolPermiso>();
+
+        public ICollection<RolPermiso> RolPermisos { get; set; } = new List<RolPermiso>();
         public ICollection<UsuarioPermiso> UsuarioPermisos { get; set; } = new List<UsuarioPermiso>();
     }
 }

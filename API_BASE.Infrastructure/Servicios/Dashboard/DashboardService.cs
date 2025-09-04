@@ -1,5 +1,7 @@
 ﻿using API_BASE.Application.DTOs.Dashboard;
+using API_BASE.Application.Interfaces;
 using API_BASE.Application.Interfaces.Dashboard;
+using API_BASE.Domain.Entities.Usuario;
 using API_BASE.Domain.Enums;
 using API_BASE.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -13,51 +15,25 @@ namespace API_BASE.Infrastructure.Servicios.Dashboard
 {
     public class DashboardService : IDashboardService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IRepository<Usuario, Guid> _usuarioRepo;
 
-        public DashboardService(ApplicationDbContext context)
+        public DashboardService(IRepository<Usuario, Guid> usuarioRepo)
         {
-            _context = context;
+            _usuarioRepo = usuarioRepo;
         }
 
-        public async Task<UsuariosPorEstadoDto> GetUsuariosPorEstadoAsync(CancellationToken ct)
+        public async Task<UsuariosPorEstadoDto> ObtenerTotalUsuariosAsync(CancellationToken ct)
         {
-            return new UsuariosPorEstadoDto
+            var usuarios = await _usuarioRepo.GetAllAsync(ct);
+
+            var dto = new UsuariosPorEstadoDto
             {
-                Activos = await _context.Usuarios.CountAsync(u => u.Estado == EstadoUsuario.Activo, ct),
-                Suspendidos = await _context.Usuarios.CountAsync(u => u.Estado == EstadoUsuario.Suspendido, ct),
-                Invitados = await _context.Usuarios.CountAsync(u => u.Estado == EstadoUsuario.Invitado, ct)
+                TotalUsuarios = usuarios.Count,
+                Activos = usuarios.Count(u => u.Estado == Domain.Enums.EstadoUsuario.Activo),
+                Inactivos = usuarios.Count(u => u.Estado == Domain.Enums.EstadoUsuario.Inactivos)
             };
-        }
 
-        public async Task<SesionesActivasDto> GetSesionesActivasAsync(CancellationToken ct)
-        {
-            var now = DateTime.UtcNow;
-            var total = await _context.Sesiones
-                .CountAsync(s => s.RevocadoEn == null && s.ExpiraEn > now, ct);
-
-            return new SesionesActivasDto { Total = total };
-        }
-
-        public async Task<LoginsFallidosDto> GetLoginsFallidosAsync(DateTime desde, CancellationToken ct)
-        {
-            var cantidad = await _context.Auditorias
-                .CountAsync(a => a.Accion == "LOGIN_FAIL" && a.Fecha >= desde, ct);
-
-            return new LoginsFallidosDto { Cantidad = cantidad };
-        }
-
-        public async Task<List<UsuariosPorOrganismoDto>> GetUsuariosPorOrganismoAsync(CancellationToken ct)
-        {
-            return await _context.UsuarioOrganizaciones
-                .Include(uo => uo.Organismo)
-                .GroupBy(uo => uo.Organismo.Nombre)
-                .Select(g => new UsuariosPorOrganismoDto
-                {
-                    Organismo = g.Key,
-                    Usuarios = g.Count()
-                })
-                .ToListAsync(ct);
+            return dto;
         }
 
         // Implementa otros métodos...
