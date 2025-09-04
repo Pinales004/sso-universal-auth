@@ -10,6 +10,8 @@ namespace API_BASE.Domain.Enums
     {
         Activo,
         Suspendido,
-        Invitado
+        Invitado,
+        Inactivos,
+        Aprobado
     }
 }

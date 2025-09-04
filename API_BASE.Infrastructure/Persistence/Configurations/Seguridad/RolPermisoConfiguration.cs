@@ -1,4 +1,5 @@
 ﻿using API_BASE.Domain.Entities.Mantenimiento;
+using API_BASE.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -15,20 +16,32 @@ namespace API_BASE.Infrastructure.Persistence.Configurations.Seguridad
         {
             builder.ToTable("RolPermisos", "seguridad");
             builder.HasKey(rp => rp.Id);
-            builder.HasIndex(rp => new { rp.RolId, rp.PermisoId, rp.AplicacionId }).IsUnique();
 
             builder.HasOne(rp => rp.Rol)
-                .WithMany(r => r.Permisos)
-                .HasForeignKey(rp => rp.RolId);
+                   .WithMany(r => r.RolPermisos)
+                   .HasForeignKey(rp => rp.RolId);
 
             builder.HasOne(rp => rp.Permiso)
-                .WithMany(p => p.Roles)
-                .HasForeignKey(rp => rp.PermisoId);
+                   .WithMany(p => p.RolPermisos)
+                   .HasForeignKey(rp => rp.PermisoId);
+
+            builder.HasOne(rp => rp.Nodo)
+                   .WithMany(n => n.RolPermisos)
+                   .HasForeignKey(rp => rp.NodoId)
+                   .IsRequired(false)
+                   .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasOne(rp => rp.Aplicacion)
-                .WithMany()
-                .HasForeignKey(rp => rp.AplicacionId)
-                .OnDelete(DeleteBehavior.SetNull);
+                   .WithMany()
+                   .HasForeignKey(rp => rp.AplicacionId)
+                   .IsRequired(false)
+                   .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Property(rp => rp.Hereda)
+                   .HasDefaultValue(true);
+
+            builder.Property(rp => rp.Efecto)
+                .HasDefaultValue(Efecto.ALLOW);
         }
     }
 }

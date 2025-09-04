@@ -10,11 +10,12 @@ namespace API_BASE.Domain.Entities.Mantenimiento
 {
     public class Rol : AuditableEntity
     {
-        public string Nombre { get; set; }
-        public bool EsGlobal { get; set; }
-        public string? Descripcion { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public bool EsGlobal { get; set; } = false;
         public bool Activo { get; set; } = true;
-        public ICollection<RolPermiso> Permisos { get; set; } = new List<RolPermiso>();
-        public ICollection<UsuarioRol> UsuarioRoles { get; set; } = new List<UsuarioRol>(); 
+        public string? Descripcion { get; set; }
+
+        public ICollection<RolPermiso> RolPermisos { get; set; } = new List<RolPermiso>();
+        public ICollection<UsuarioRol> UsuarioRoles { get; set; } = new List<UsuarioRol>();
     }
 }

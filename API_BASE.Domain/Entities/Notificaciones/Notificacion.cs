@@ -10,12 +10,12 @@ namespace API_BASE.Domain.Entities.Notificaciones
     //Propósito: Registrar cada notificación generada por el sistema.
     public class Notificacion : AuditableEntity
     {
-        public string Titulo { get; set; }
-        public string Mensaje { get; set; }
-        public string Tipo { get; set; }         // Ej: "Email", "SMS", "Push", "Sistema"
+        public string Titulo { get; set; } = string.Empty;
+        public string Mensaje { get; set; } = string.Empty;
+        public string Tipo { get; set; } = string.Empty; // "Email", "SMS", "Push", "Sistema"
         public string? UrlDestino { get; set; }
-        public DateTime FechaEnvio { get; set; }
-        public bool EsGlobal { get; set; } = false;   // Si aplica a todos los usuarios o no
+        public DateTime FechaEnvio { get; set; } = DateTime.UtcNow;
+        public bool EsGlobal { get; set; } = false; // Aplica a todos o no
 
         public ICollection<NotificacionUsuario> Destinatarios { get; set; } = new List<NotificacionUsuario>();
     }

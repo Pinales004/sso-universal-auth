@@ -13,9 +13,23 @@ namespace API_BASE.Infrastructure.Persistence.Configurations.Usuarios
     {
         public void Configure(EntityTypeBuilder<MfaRecoveryCode> builder)
         {
-            builder.ToTable("MfaRecoveryCodes", "usuarios");
+            builder.ToTable("MfaRecoveryCodes", "seguridad");
             builder.HasKey(m => m.Id);
-            builder.Property(m => m.CodeHash).IsRequired();
+
+            builder.Property(m => m.CodeHash)
+                   .IsRequired()
+                   .HasMaxLength(200);
+
+            builder.Property(m => m.Usado)
+                   .HasDefaultValue(false);
+
+            builder.Property(m => m.CreadoEn)
+                   .IsRequired();
+
+            builder.HasOne(m => m.Usuario)
+                   .WithMany(u => u.MfaRecoveryCodes)
+                   .HasForeignKey(m => m.UsuarioId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

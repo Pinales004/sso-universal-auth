@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API_BASE.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250903222656_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250904002913_UpdateSSOEntities")]
+    partial class UpdateSSOEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -140,12 +140,11 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<string>("Codigo")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Descripcion")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
@@ -155,8 +154,8 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UsuarioCreacion")
                         .IsRequired()
@@ -166,9 +165,6 @@ namespace API_BASE.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Codigo")
-                        .IsUnique();
 
                     b.ToTable("Permisos", "seguridad");
                 });
@@ -236,8 +232,10 @@ namespace API_BASE.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<bool>("Denegado")
-                        .HasColumnType("bit");
+                    b.Property<int>("Efecto")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
@@ -246,7 +244,9 @@ namespace API_BASE.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("Hereda")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<Guid?>("NodoId")
                         .HasColumnType("uniqueidentifier");
@@ -272,9 +272,7 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.HasIndex("PermisoId");
 
-                    b.HasIndex("RolId", "PermisoId", "AplicacionId")
-                        .IsUnique()
-                        .HasFilter("[AplicacionId] IS NOT NULL");
+                    b.HasIndex("RolId");
 
                     b.ToTable("RolPermisos", "seguridad");
                 });
@@ -299,6 +297,9 @@ namespace API_BASE.Infrastructure.Migrations
                     b.Property<DateTime?>("Desde")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Efecto")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
@@ -307,6 +308,12 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<DateTime?>("Hasta")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("NodoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("PermisoId")
                         .HasColumnType("uniqueidentifier");
@@ -322,6 +329,10 @@ namespace API_BASE.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NodoId");
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("PermisoId");
 
@@ -356,7 +367,18 @@ namespace API_BASE.Infrastructure.Migrations
                     b.Property<DateTime?>("Hasta")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IncluirDescendientes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<Guid?>("NodoId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("OrganismoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("OrganismoIdExt")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("RolId")
@@ -374,11 +396,15 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("NodoId");
+
                     b.HasIndex("OrganismoId");
+
+                    b.HasIndex("OrganismoIdExt");
 
                     b.HasIndex("RolId");
 
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("UsuarioId", "RolId", "OrganismoIdExt", "NodoId");
 
                     b.ToTable("UsuarioRoles", "seguridad");
                 });
@@ -506,7 +532,8 @@ namespace API_BASE.Infrastructure.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<string>("Codigo")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
@@ -516,8 +543,8 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
@@ -536,7 +563,7 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Organismos", "organizacion");
+                    b.ToTable("Organismos", "seguridad");
                 });
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Seguridad.Auditoria", b =>
@@ -600,6 +627,8 @@ namespace API_BASE.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActorId");
+
+                    b.HasIndex("OrganismoId");
 
                     b.ToTable("Auditorias", "seguridad");
                 });
@@ -667,7 +696,8 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<string>("Codigo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
@@ -677,7 +707,8 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int?>("Orden")
                         .HasColumnType("int");
@@ -687,7 +718,8 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<string>("Tipo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("UsuarioCreacion")
                         .IsRequired()
@@ -1188,8 +1220,8 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<bool>("EsAdminGlobal")
                         .HasColumnType("bit");
@@ -1203,25 +1235,32 @@ namespace API_BASE.Infrastructure.Migrations
                     b.Property<DateTime?>("FechaModificacion")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("MfaEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<bool>("MustChangePassword")
                         .HasColumnType("bit");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordSalt")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PasswordUpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Telefono")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Username")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("UsuarioCreacion")
                         .IsRequired()
@@ -1232,10 +1271,7 @@ namespace API_BASE.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.ToTable("Usuarios", "usuarios");
+                    b.ToTable("Usuarios", "Usuarios");
                 });
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Usuario.UsuarioOrganizacion", b =>
@@ -1315,23 +1351,26 @@ namespace API_BASE.Infrastructure.Migrations
                         .HasForeignKey("AplicacionId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("API_BASE.Domain.Entities.Seguridad.Nodo", null)
+                    b.HasOne("API_BASE.Domain.Entities.Seguridad.Nodo", "Nodo")
                         .WithMany("RolPermisos")
-                        .HasForeignKey("NodoId");
+                        .HasForeignKey("NodoId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("API_BASE.Domain.Entities.Mantenimiento.Permiso", "Permiso")
-                        .WithMany("Roles")
+                        .WithMany("RolPermisos")
                         .HasForeignKey("PermisoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("API_BASE.Domain.Entities.Mantenimiento.Rol", "Rol")
-                        .WithMany("Permisos")
+                        .WithMany("RolPermisos")
                         .HasForeignKey("RolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Aplicacion");
+
+                    b.Navigation("Nodo");
 
                     b.Navigation("Permiso");
 
@@ -1340,7 +1379,17 @@ namespace API_BASE.Infrastructure.Migrations
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Mantenimiento.UsuarioMan.UsuarioPermiso", b =>
                 {
-                    b.HasOne("API_BASE.Domain.Entities.Mantenimiento.Permiso", "permiso")
+                    b.HasOne("API_BASE.Domain.Entities.Seguridad.Nodo", "Nodo")
+                        .WithMany()
+                        .HasForeignKey("NodoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API_BASE.Domain.Entities.Mantenimiento.UsuarioMan.UsuarioPermiso", null)
+                        .WithMany("Hijos")
+                        .HasForeignKey("ParentId");
+
+                    b.HasOne("API_BASE.Domain.Entities.Mantenimiento.Permiso", "Permiso")
                         .WithMany("UsuarioPermisos")
                         .HasForeignKey("PermisoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1352,16 +1401,27 @@ namespace API_BASE.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Usuario");
+                    b.Navigation("Nodo");
 
-                    b.Navigation("permiso");
+                    b.Navigation("Permiso");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Mantenimiento.UsuarioMan.UsuarioRol", b =>
                 {
+                    b.HasOne("API_BASE.Domain.Entities.Seguridad.Nodo", "Nodo")
+                        .WithMany()
+                        .HasForeignKey("NodoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("API_BASE.Domain.Entities.Organismo.Organismo", null)
+                        .WithMany("UsuarioRoles")
+                        .HasForeignKey("OrganismoId");
+
                     b.HasOne("API_BASE.Domain.Entities.Organismo.Organismo", "Organismo")
                         .WithMany()
-                        .HasForeignKey("OrganismoId")
+                        .HasForeignKey("OrganismoIdExt")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("API_BASE.Domain.Entities.Mantenimiento.Rol", "Rol")
@@ -1375,6 +1435,8 @@ namespace API_BASE.Infrastructure.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Nodo");
 
                     b.Navigation("Organismo");
 
@@ -1418,6 +1480,10 @@ namespace API_BASE.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("ActorId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("API_BASE.Domain.Entities.Organismo.Organismo", null)
+                        .WithMany("Auditorias")
+                        .HasForeignKey("OrganismoId");
 
                     b.Navigation("Actor");
                 });
@@ -1534,8 +1600,7 @@ namespace API_BASE.Infrastructure.Migrations
                     b.HasOne("API_BASE.Domain.Entities.Organismo.Organismo", "Organismo")
                         .WithMany("UsuarioOrganizaciones")
                         .HasForeignKey("OrganismoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("API_BASE.Domain.Entities.Usuario.Usuario", "Usuario")
                         .WithMany("Organizaciones")
@@ -1555,16 +1620,21 @@ namespace API_BASE.Infrastructure.Migrations
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Mantenimiento.Permiso", b =>
                 {
-                    b.Navigation("Roles");
+                    b.Navigation("RolPermisos");
 
                     b.Navigation("UsuarioPermisos");
                 });
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Mantenimiento.Rol", b =>
                 {
-                    b.Navigation("Permisos");
+                    b.Navigation("RolPermisos");
 
                     b.Navigation("UsuarioRoles");
+                });
+
+            modelBuilder.Entity("API_BASE.Domain.Entities.Mantenimiento.UsuarioMan.UsuarioPermiso", b =>
+                {
+                    b.Navigation("Hijos");
                 });
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Notificaciones.Notificacion", b =>
@@ -1574,9 +1644,13 @@ namespace API_BASE.Infrastructure.Migrations
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Organismo.Organismo", b =>
                 {
+                    b.Navigation("Auditorias");
+
                     b.Navigation("Hijos");
 
                     b.Navigation("UsuarioOrganizaciones");
+
+                    b.Navigation("UsuarioRoles");
                 });
 
             modelBuilder.Entity("API_BASE.Domain.Entities.Seguridad.Nodo", b =>

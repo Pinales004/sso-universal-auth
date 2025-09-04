@@ -16,10 +16,18 @@ namespace API_BASE.Infrastructure.Persistence.Configurations.Seguridad
             builder.ToTable("Nodos", "seguridad");
             builder.HasKey(n => n.Id);
 
+            builder.Property(n => n.Tipo).IsRequired().HasMaxLength(200);
+            builder.Property(n => n.Codigo).IsRequired().HasMaxLength(200);
+            builder.Property(n => n.Nombre).IsRequired().HasMaxLength(300);
+
             builder.HasOne(n => n.Padre)
-                .WithMany(n => n.Hijos)
-                .HasForeignKey(n => n.ParentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                   .WithMany(n => n.Hijos)
+                   .HasForeignKey(n => n.ParentId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(n => n.RolPermisos)
+                   .WithOne(rp => rp.Nodo)
+                   .HasForeignKey(rp => rp.NodoId);
         }
     }
 }

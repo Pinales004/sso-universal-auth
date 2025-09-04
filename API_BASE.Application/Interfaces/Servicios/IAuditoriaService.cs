@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API_BASE.Domain.Entities.Seguridad;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace API_BASE.Application.Interfaces.Servicios
 {
     public interface IAuditoriaService
     {
-        Task RegistrarAccionAsync(Guid? usuarioId, string accion, string? objetivoTipo = null, string? objetivoId = null, string? metadata = null);
+        //Task RegistrarAccionAsync(Auditoria evento, CancellationToken ct);
     }
 }

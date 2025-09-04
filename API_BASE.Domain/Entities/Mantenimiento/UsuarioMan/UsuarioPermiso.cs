@@ -1,4 +1,6 @@
 ﻿using API_BASE.Domain.Base;
+using API_BASE.Domain.Entities.Seguridad;
+using API_BASE.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +17,17 @@ namespace API_BASE.Domain.Entities.Mantenimiento.UsuarioMan
         public DateTime? Desde { get; set; }
         public DateTime? Hasta { get; set; }
 
-        public Usuario.Usuario Usuario { get; set; }
-        public Permiso permiso { get; set; }
+        // Propiedades necesarias para PolicyEvaluator
+        public Guid NodoId { get; set; }                 // Nodo funcional al que aplica el permiso
+        public Efecto Efecto { get; set; }             // ALLOW / DENY
+
+        // Para herencia funcional si aplicas
+        public ICollection<UsuarioPermiso> Hijos { get; set; } = new List<UsuarioPermiso>();
+
+        // Relaciones de navegación
+        public API_BASE.Domain.Entities.Usuario.Usuario Usuario { get; set; } = null!;
+        public Permiso Permiso { get; set; } = null!;
+        public Nodo Nodo { get; set; } = null!;
     }
 }
 

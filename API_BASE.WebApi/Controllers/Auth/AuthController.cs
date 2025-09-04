@@ -1,4 +1,7 @@
-﻿using API_BASE.Infrastructure.Servicios;
+﻿using API_BASE.Application.Interfaces.Auth;
+using API_BASE.Application.Models.Auth;
+using API_BASE.Infrastructure.Servicios;
+using API_BASE.Shared.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_BASE.API.Controllers
@@ -7,37 +10,75 @@ namespace API_BASE.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly JwtService _jwtService;
+        private readonly IAuthService _authService;
 
-        public AuthController(JwtService jwtService)
+        public AuthController(IAuthService authService)
         {
-            _jwtService = jwtService;
+            _authService = authService;
         }
 
-        ////[HttpPost("login")]
-    //    public IActionResult Login([FromBody] LoginRequest request)
-    //    {
-    //        // ⚠️ Esto es solo un ejemplo fijo. Más adelante puedes validar desde base de datos
-    //        if (request.Username == "admin" && request.Password == "admin123")
-    //        {
-    //        //    //Aca se puede luego cambiar el rol de manera dinamica, digase un valor de la base de datos
-    //        //  //  var token = _jwtService.GenerateToken(Guid,);
+        [HttpPost("login")]
+        public async Task<ActionResult<ApiResponse<AuthResult>>> Login([FromBody] LoginRequest request, CancellationToken ct)
+        {
+            var result = await _authService.LoginAsync(
+                request.Email,
+                request.Password,
+                request.MfaCode,
+                request.UserAgent,
+                request.Ip,
+                ct
+            );
 
-    //        //    return Ok(new
-    //        //    {
-    //        //        access_token = token,
-    //        //        expires_in = 3600
-    //        //    });
-    //        //}
+            if (!result.Success)
+                return BadRequest(ApiResponse<AuthResult>.Fail(result.ErrorMessage ?? "Login fallido"));
 
-    //        return Unauthorized(new { message = "Credenciales incorrectas" });
-    //    }
-    //}
+            return Ok(ApiResponse<AuthResult>.Ok(result));
+        }
 
+        [HttpPost("refresh")]
+        public async Task<ActionResult<ApiResponse<AuthResult>>> Refresh([FromBody] RefreshTokenRequest request, CancellationToken ct)
+        {
+            var result = await _authService.RefreshTokenAsync(
+                request.RefreshToken,
+                request.UserAgent,
+                request.Ip,
+                ct
+            );
+
+            if (!result.Success)
+                return BadRequest(ApiResponse<AuthResult>.Fail(result.ErrorMessage ?? "Refresh fallido"));
+
+            return Ok(ApiResponse<AuthResult>.Ok(result));
+        }
+
+        [HttpPost("logout")]
+        public async Task<ActionResult<ApiResponse<bool>>> Logout([FromBody] LogoutRequest request, CancellationToken ct)
+        {
+            await _authService.LogoutAsync(request.UsuarioId, request.RefreshToken, ct);
+            return Ok(ApiResponse<bool>.Ok(true));
+        }
+    }
+
+    // DTOs específicos para el controlador
     public class LoginRequest
     {
-        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+        public string? MfaCode { get; set; }
+        public string UserAgent { get; set; } = string.Empty;
+        public string Ip { get; set; } = string.Empty;
     }
-}
+
+    public class RefreshTokenRequest
+    {
+        public string RefreshToken { get; set; } = string.Empty;
+        public string UserAgent { get; set; } = string.Empty;
+        public string Ip { get; set; } = string.Empty;
+    }
+
+    public class LogoutRequest
+    {
+        public Guid UsuarioId { get; set; }
+        public string RefreshToken { get; set; } = string.Empty;
+    }
 }
