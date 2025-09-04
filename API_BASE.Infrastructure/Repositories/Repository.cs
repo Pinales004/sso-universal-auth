@@ -1,9 +1,6 @@
-﻿
-using API_BASE.Application.Interfaces;
-using API_BASE.Domain.Entities.Usuario.Solicitud;
+﻿using API_BASE.Application.Interfaces;
 using API_BASE.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using System.Linq.Expressions;
 
 namespace API_BASE.Infrastructure.Repositories
@@ -22,14 +19,6 @@ namespace API_BASE.Infrastructure.Repositories
         public async Task<TEntity?> GetByIdAsync(TId id, CancellationToken ct = default)
         {
             return await _dbSet.FindAsync(new object[] { id }, ct);
-        }
-
-        // Sobrecarga específica para SolicitudUsuario
-        public async Task<SolicitudUsuario> GetByIdAsync(Guid solicitudId, CancellationToken ct)
-        {
-            return await _dbSet.OfType<SolicitudUsuario>()
-                               .FirstOrDefaultAsync(s => s.Id == solicitudId, ct)
-                               ?? throw new Exception("SolicitudUsuario no encontrada");
         }
 
         public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)

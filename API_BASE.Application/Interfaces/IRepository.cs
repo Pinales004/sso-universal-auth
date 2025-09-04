@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace API_BASE.Application.Interfaces
 {
-    public interface IRepository<TEntity, TId> where TEntity : class
+    public interface IRepository<TEntity, TId>
     {
         Task<TEntity?> GetByIdAsync(TId id, CancellationToken ct = default);
         Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default);
@@ -20,7 +20,6 @@ namespace API_BASE.Application.Interfaces
         Task<int> SaveChangesAsync(CancellationToken ct = default);
         Task<(List<TEntity> Items, int TotalCount)> GetPagedAsync(
             Expression<Func<TEntity, bool>>? predicate, int page, int pageSize, CancellationToken ct = default);
-        Task<SolicitudUsuario> GetByIdAsync(Guid solicitudId, CancellationToken ct);
     }
 
 }

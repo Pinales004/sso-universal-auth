@@ -14,9 +14,9 @@ namespace API_BASE.Infrastructure.Servicios.Requests
 {
     public class RequestService : IRequestService
     {
-        private readonly IRepository<SolicitudUsuario, int> _repo;
+        private readonly IRepository<SolicitudUsuario, Guid> _repo;
 
-        public RequestService(IRepository<SolicitudUsuario, int> repo)
+        public RequestService(IRepository<SolicitudUsuario, Guid> repo)
         {
             _repo = repo;
         }

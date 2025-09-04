@@ -51,9 +51,9 @@ namespace API_BASE.Infrastructure.Servicios.Notification
 
         // Obtener email del usuario
         var usuario = await _usuarioRepo.GetByIdAsync(usuarioId, CancellationToken.None);
-        if (usuario != null && !string.IsNullOrEmpty(usuario.EmailContacto))
+        if (usuario != null && !string.IsNullOrEmpty(usuario.Email))
         {
-            await _emailSender.SendEmailAsync(usuario.EmailContacto, titulo, mensaje);
+            await _emailSender.SendEmailAsync(usuario.Email, titulo, mensaje);
         }
     }
 
@@ -90,9 +90,9 @@ namespace API_BASE.Infrastructure.Servicios.Notification
         foreach (var usuarioId in usuarios)
         {
             var usuario = await _usuarioRepo.GetByIdAsync(usuarioId, CancellationToken.None);
-            if (usuario != null && !string.IsNullOrEmpty(usuario.EmailContacto))
+            if (usuario != null && !string.IsNullOrEmpty(usuario.Email))
             {
-                tasks.Add(_emailSender.SendEmailAsync(usuario.EmailContacto, titulo, mensaje));
+                tasks.Add(_emailSender.SendEmailAsync(usuario.Email, titulo, mensaje));
             }
         }
         await Task.WhenAll(tasks);

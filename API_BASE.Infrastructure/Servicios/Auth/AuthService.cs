@@ -104,10 +104,10 @@ namespace API_BASE.Infrastructure.Servicios.Auth
             if (sesion == null)
                 return AuthResult.Fail("SESION_INVALIDA");
 
-            var usuario = await _usuarioRepo.GetByIdAsync(sesion.Solicitante.Id, ct);
+            var usuario = await _usuarioRepo.GetByIdAsync(sesion.Id, ct);
             if (usuario == null) return AuthResult.Fail("USUARIO_NO_ENCONTRADO");
 
-            var accessToken = _tokenService.GenerateJwtToken(usuario.Solicitante, null, null, 1);
+            var accessToken = _tokenService.GenerateJwtToken(usuario, null, null, 1);
 
             var newRefreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(usuario.Id, sesion.Id, userAgent, ip, ct);
 

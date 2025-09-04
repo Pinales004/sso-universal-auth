@@ -18,7 +18,11 @@ namespace API_BASE.Application.Mapping.Usuario
                .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => src.Estado.ToString()));
 
             CreateMap<UsuarioDto, API_BASE.Domain.Entities.Usuario.Usuario>()
-                .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => Enum.Parse<EstadoUsuario>(src.Estado)));
+                .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => Enum.Parse<EstadoUsuario>(src.Estado.ToString())));
+
+            CreateMap<UsuarioCreateDto, API_BASE.Domain.Entities.Usuario.Usuario>();
+            CreateMap<UsuarioUpdateDto, API_BASE.Domain.Entities.Usuario.Usuario>();
+
         }
     }
  }

@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace API_BASE.Application.DTOs.Usuario
 {
-    public class UsuarioDto
+    public class UsuarioCreateDto
     {
-        public Guid Id { get; set; }
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
         public string? Username { get; set; }
         public string? Telefono { get; set; }
         public int Estado { get; set; }
-        public bool EsAdminGlobal { get; set; }
-        public DateTime CreadoEn { get; set; }
-        public DateTime? ActualizadoEn { get; set; }
+        public string Password { get; set; } = null!;
+        public bool EsAdminGlobal { get; set; } = false;
     }
 }

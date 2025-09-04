@@ -1,81 +1,72 @@
-﻿using API_BASE.Application.Interfaces;
-using API_BASE.Shared.Responses;
+﻿using Microsoft.AspNetCore.Mvc;
+using API_BASE.Application.Interfaces;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 
-namespace API_BASE.API.Controllers.Base
+namespace API_BASE.WebApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class BaseController<TEntity, TDto> : ControllerBase
-        where TEntity : class
-        where TDto : class
+    public abstract class BaseController<TDto, TCreateDto, TUpdateDto, TEntity, TId> : ControllerBase
     {
-        protected readonly IRepository<TEntity, Guid> _repository;
+        protected readonly IRepository<TEntity, TId> _repository;
         protected readonly IMapper _mapper;
 
-        public BaseController(IRepository<TEntity, Guid> repository, IMapper mapper)
+        protected BaseController(IRepository<TEntity, TId> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IEnumerable<TDto>>>> GetAll()
+        public virtual async Task<ActionResult<List<TDto>>> GetAll(CancellationToken ct = default)
         {
-            var entities = await _repository.GetAllAsync();
-            var dtos = _mapper.Map<IEnumerable<TDto>>(entities);
-            return Ok(ApiResponse<IEnumerable<TDto>>.Ok(dtos));
+            var entities = await _repository.GetAllAsync(ct);
+            var dtos = _mapper.Map<List<TDto>>(entities);
+            return Ok(dtos);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<ApiResponse<TDto>>> GetById(Guid id)
+        [HttpGet("{id}")]
+        public virtual async Task<ActionResult<TDto>> GetById(TId id, CancellationToken ct = default)
         {
-            var entity = await _repository.GetByIdAsync(id);
-            if (entity == null)
-                return NotFound(ApiResponse<TDto>.Fail("No encontrado"));
+            var entity = await _repository.GetByIdAsync(id, ct);
+            if (entity == null) return NotFound();
             var dto = _mapper.Map<TDto>(entity);
-            return Ok(ApiResponse<TDto>.Ok(dto));
+            return Ok(dto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<TDto>>> Create([FromBody] TDto dto)
+        public virtual async Task<ActionResult<TDto>> Create([FromBody] TCreateDto dto, CancellationToken ct = default)
         {
             var entity = _mapper.Map<TEntity>(dto);
-            await _repository.AddAsync(entity);
-            await _repository.SaveChangesAsync();
-
-            // Usar reflexión para extraer el Id (supone propiedad Guid llamada "Id")
-            var entityId = (Guid)entity.GetType().GetProperty("Id")!.GetValue(entity)!;
-            var result = _mapper.Map<TDto>(entity);
-
-            return CreatedAtAction(nameof(GetById), new { id = entityId }, ApiResponse<TDto>.Ok(result));
+            await _repository.AddAsync(entity, ct);
+            await _repository.SaveChangesAsync(ct);
+            var resultDto = _mapper.Map<TDto>(entity);
+            return CreatedAtAction(nameof(GetById), new { id = GetId(resultDto) }, resultDto);
         }
 
-        [HttpPut("{id:guid}")]
-        public async Task<ActionResult<ApiResponse<TDto>>> Update(Guid id, [FromBody] TDto dto)
+        [HttpPut("{id}")]
+        public virtual async Task<ActionResult> Update(TId id, [FromBody] TUpdateDto dto, CancellationToken ct = default)
         {
-            var entity = await _repository.GetByIdAsync(id);
-            if (entity == null)
-                return NotFound(ApiResponse<TDto>.Fail("No encontrado"));
-
+            var entity = await _repository.GetByIdAsync(id, ct);
+            if (entity == null) return NotFound();
             _mapper.Map(dto, entity);
             _repository.Update(entity);
-            await _repository.SaveChangesAsync();
-
-            return Ok(ApiResponse<TDto>.Ok(_mapper.Map<TDto>(entity)));
+            await _repository.SaveChangesAsync(ct);
+            return NoContent();
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<ApiResponse<bool>>> Delete(Guid id)
+        [HttpDelete("{id}")]
+        public virtual async Task<ActionResult> Delete(TId id, CancellationToken ct = default)
         {
-            var entity = await _repository.GetByIdAsync(id);
-            if (entity == null)
-                return NotFound(ApiResponse<bool>.Fail("No encontrado"));
-
+            var entity = await _repository.GetByIdAsync(id, ct);
+            if (entity == null) return NotFound();
             _repository.Remove(entity);
-            await _repository.SaveChangesAsync();
-            return Ok(ApiResponse<bool>.Ok(true));
+            await _repository.SaveChangesAsync(ct);
+            return NoContent();
         }
+
+        protected abstract TId GetId(TDto dto);
     }
 }
