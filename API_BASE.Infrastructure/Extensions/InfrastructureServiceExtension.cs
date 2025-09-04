@@ -10,7 +10,6 @@ using API_BASE.Infrastructure.Servicios.Authorization;
 using API_BASE.Infrastructure.Servicios;
 using API_BASE.Infrastructure.Servicios.Dashboard;
 using API_BASE.Infrastructure.Servicios.Mfa;
-using FluentAssertions.Common;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace API_BASE.Infrastructure.Extensions

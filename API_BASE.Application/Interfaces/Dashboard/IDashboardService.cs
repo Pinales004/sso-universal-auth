@@ -13,6 +13,6 @@ namespace API_BASE.Application.Interfaces.Dashboard
         //Task<SesionesActivasDto> GetSesionesActivasAsync(CancellationToken ct);
         //Task<LoginsFallidosDto> GetLoginsFallidosAsync(DateTime desde, CancellationToken ct);
         //Task<List<UsuariosPorOrganismoDto>> GetUsuariosPorOrganismoAsync(CancellationToken ct);
-        // Otros métodos para los demás widgets.
+       
     }
 }

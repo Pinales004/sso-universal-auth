@@ -17,4 +17,8 @@
     <ProjectReference Include="..\API_BASE.Shared\API_BASE.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

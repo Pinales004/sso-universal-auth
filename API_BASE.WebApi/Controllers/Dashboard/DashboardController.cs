@@ -17,21 +17,21 @@ namespace API_BASE.API.Controllers.Dashboard
             _service = service;
         }
 
-        [HttpGet("usuarios/por-estado")]
-        public async Task<ActionResult<UsuariosPorEstadoDto>> GetUsuariosPorEstado(CancellationToken ct)
-            => Ok(await _service.GetUsuariosPorEstadoAsync(ct));
+        //[HttpGet("usuarios/por-estado")]
+        //public async Task<ActionResult<UsuariosPorEstadoDto>> GetUsuariosPorEstado(CancellationToken ct)
+        //    => Ok(await _service.GetUsuariosPorEstadoAsync(ct));
 
-        [HttpGet("sesiones/activas")]
-        public async Task<ActionResult<SesionesActivasDto>> GetSesionesActivas(CancellationToken ct)
-            => Ok(await _service.GetSesionesActivasAsync(ct));
+        //[HttpGet("sesiones/activas")]
+        //public async Task<ActionResult<SesionesActivasDto>> GetSesionesActivas(CancellationToken ct)
+        //    => Ok(await _service.GetSesionesActivasAsync(ct));
 
-        [HttpGet("login/fallidos")]
-        public async Task<ActionResult<LoginsFallidosDto>> GetLoginsFallidos([FromQuery] DateTime desde, CancellationToken ct)
-            => Ok(await _service.GetLoginsFallidosAsync(desde, ct));
+        //[HttpGet("login/fallidos")]
+        //public async Task<ActionResult<LoginsFallidosDto>> GetLoginsFallidos([FromQuery] DateTime desde, CancellationToken ct)
+        //    => Ok(await _service.GetLoginsFallidosAsync(desde, ct));
 
-        [HttpGet("usuarios/por-organismo")]
-        public async Task<ActionResult<List<UsuariosPorOrganismoDto>>> GetUsuariosPorOrganismo(CancellationToken ct)
-            => Ok(await _service.GetUsuariosPorOrganismoAsync(ct));
+        //[HttpGet("usuarios/por-organismo")]
+        //public async Task<ActionResult<List<UsuariosPorOrganismoDto>>> GetUsuariosPorOrganismo(CancellationToken ct)
+        //    => Ok(await _service.GetUsuariosPorOrganismoAsync(ct));
 
         // Agrega más endpoints según sea necesario.
     }

@@ -39,6 +39,9 @@ namespace API_BASE.Infrastructure.Servicios.Auth
             _mfaService = mfaService;
         }
 
+        // --------------------------
+        // Login
+        // --------------------------
         public async Task<AuthResult> LoginAsync(string email, string password, string? mfaCode, string userAgent, string ip, CancellationToken ct)
         {
             var usuario = await _usuarioRepo.FirstOrDefaultAsync(u => u.Email == email, ct);
@@ -64,8 +67,7 @@ namespace API_BASE.Infrastructure.Servicios.Auth
                 UsuarioId = usuario.Id,
                 Ip = ip,
                 UserAgent = userAgent,
-                FechaCreacion = DateTime.UtcNow,
-                ExpiraEn = DateTime.UtcNow.AddDays(7)
+                FechaCreacion = DateTime.UtcNow
             };
 
             await _sesionRepo.AddAsync(sesion, ct);
@@ -79,11 +81,14 @@ namespace API_BASE.Infrastructure.Servicios.Auth
                 Success = true,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiraEn = DateTime.UtcNow.AddMinutes(60),
+                ExpiraEn = DateTime.UtcNow.AddMinutes(60), // Vigencia del JWT
                 UsuarioId = usuario.Id
             };
         }
 
+        // --------------------------
+        // Refresh token
+        // --------------------------
         public async Task<AuthResult> RefreshTokenAsync(string refreshToken, string userAgent, string ip, CancellationToken ct)
         {
             var valido = await _refreshTokenService.ValidateAndUseRefreshTokenAsync(refreshToken, ct);
@@ -95,12 +100,15 @@ namespace API_BASE.Infrastructure.Servicios.Auth
             if (tokenEntity == null) return AuthResult.Fail("TOKEN_NO_ENCONTRADO");
 
             var sesion = await _sesionRepo.GetByIdAsync(tokenEntity.SesionId, ct);
-            if (sesion == null || sesion.ExpiraEn <= DateTime.UtcNow) return AuthResult.Fail("SESION_INVALIDA");
 
-            var usuario = await _usuarioRepo.GetByIdAsync(sesion.UsuarioId, ct);
+            if (sesion == null)
+                return AuthResult.Fail("SESION_INVALIDA");
+
+            var usuario = await _usuarioRepo.GetByIdAsync(sesion.Solicitante.Id, ct);
             if (usuario == null) return AuthResult.Fail("USUARIO_NO_ENCONTRADO");
 
-            var accessToken = _tokenService.GenerateJwtToken(usuario, null, null, 1);
+            var accessToken = _tokenService.GenerateJwtToken(usuario.Solicitante, null, null, 1);
+
             var newRefreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(usuario.Id, sesion.Id, userAgent, ip, ct);
 
             return new AuthResult
@@ -113,6 +121,9 @@ namespace API_BASE.Infrastructure.Servicios.Auth
             };
         }
 
+        // --------------------------
+        // Logout
+        // --------------------------
         public async Task LogoutAsync(Guid usuarioId, string refreshToken, CancellationToken ct)
         {
             string tokenHash = _hasher.HashPassword(refreshToken, out string salt);
@@ -126,4 +137,5 @@ namespace API_BASE.Infrastructure.Servicios.Auth
             }
         }
     }
-}
+    }
+
